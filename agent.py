@@ -1,3 +1,8 @@
+from xml.parsers.expat import model
+
+from langgraph.prebuilt import create_react_agent
+
+from medical_access import get_medical_access
 from dataclasses import dataclass
 from xmlrpc import client
 from langchain.agents import create_agent
@@ -20,11 +25,12 @@ if not os.getenv("ANTHROPIC_API_KEY"):
     raise ValueError("ANTHROPIC_API_KEY not found. Check your .env file.")
 
 #  MODEL 
-model = Anthropic().messages.create(
-    model="claude-haiku-4-5-20251001",
-    max_tokens=10,
-    messages=[{"role": "user", "content": "Hello"}]
-)
+#model = Anthropic().messages.create(
+#    model="claude-haiku-4-5-20251001",
+#    max_tokens=10,
+#    messages=[{"role": "user", "content": "Hello"}]
+#)
+client = Anthropic()
 #print("API connection successful!")
 # LOAD DATA ONCE 
 df = pd.read_csv("PLACES__Local_Data_for_Better_Health,_Census_Tract_Data,_2025_release_20260324.csv")
@@ -76,24 +82,37 @@ def compare_locations(location1: str, location2: str) -> str:
             .sort_values(ascending=False)
             .head(5)
         )
-
-    s1 = get_summary(location1)
-    s2 = get_summary(location2)
-
-    if s1 is None:
-        return f"No data found for {location1}"
-    if s2 is None:
-        return f"No data found for {location2}"
-
-    result = f"Comparing {location1} vs {location2}:\n\n"
-    result += f"{location1}:\n"
-    for k, v in s1.items():
-        result += f"  {k}: {v:.1f}%\n"
-    result += f"\n{location2}:\n"
-    for k, v in s2.items():
-        result += f"  {k}: {v:.1f}%\n"
+@tool
+def quantify_zip_risk(zip_code: str) -> str:
+    """
+    Quantifies health risk for a specific ZIP code (ZCTA) relative to the 
+    national average. Returns a Risk Index (1.0 = National Average).
+    """
+    # Ensure ZIP is a string and matches the ZCTA format in the CDC dataset
+    target_zip = str(zip_code).strip().zfill(5)
+    
+    # 1. Calculate National Averages (Run this once globally for speed)
+    national_means = df.groupby('MeasureId')['Data_Value'].mean()
+    
+    # 2. Filter for the specific ZIP Code Tabulation Area
+    zip_data = df[df['ZCTA5'] == target_zip]
+    
+    if zip_data.empty:
+        return f"No health data available for ZIP code {target_zip}."
+    
+    # 3. Calculate Risk Index (Local / National)
+    zip_means = zip_data.groupby('MeasureId')['Data_Value'].mean()
+    risk_index = (zip_means / national_means).dropna().sort_values(ascending=False)
+    
+    result = f"Health Risk Quantification for ZIP {target_zip}:\n"
+    result += "(> 1.0 indicates higher prevalence than the national average)\n\n"
+    
+    # Show top 5 risk factors in this ZIP
+    for measure, index in risk_index.head(5).items():
+        severity = "🔴 HIGH" if index > 1.5 else "🟡 MODERATE"
+        result += f" - {measure}: {index:.2f}x national avg ({severity})\n"
+        
     return result
-
 # SYSTEM PROMPT 
 SYSTEM_PROMPT = """You are OptiPath, a health data assistant for insurance providers and healthcare consultants.
 
@@ -110,20 +129,28 @@ def hub():
     return client.ServerProxy("https://hub.langgraph.com/rpc")
 prompt = hub.pull("hwchase17/react")
 
-agent = create_agent(
+# 2. Initialize the ReAct agent
+from langchain import hub
+from langchain.agents import create_react_agent, AgentExecutor
+agent = create_react_agent(
     llm=model,
-    tools=[get_health_data, compare_locations],
+    tools=[get_health_data, compare_locations, quantify_zip_risk],
     prompt=prompt
 )
 
-agent_executor = agent(
+# 3. Initialize the Executor
+# It is a class instance, not a function call
+agent_executor = AgentExecutor(
     agent=agent,
-    tools=[get_health_data, compare_locations],
-    verbose=True
+    tools=[get_health_data, compare_locations, quantify_zip_risk],
+    verbose=True,
+    handle_parsing_errors=True # Recommended for ReAct agents
 )
 
-# TEST
+# 4. Invoke the agent
 if __name__ == "__main__":
-    print(agent_executor.invoke({
-        "input": "What are the biggest health concerns in Houston Texas?"
-    }))
+    # Ensure the input key matches what the prompt expects (usually 'input')
+    response = agent_executor.invoke({
+        "input": "What are the biggest health concerns in Houston, Texas?"
+    })
+    print(response["output"])
