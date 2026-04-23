@@ -67,9 +67,3 @@ if lila_col:
     print(f"\nFound Food Desert column: {lila_col[0]}")
     # This shows average diabetes rate in Food Deserts vs Non-Food Deserts
     print(df_filtered.groupby(lila_col[0])['Data Value'].mean())
-
-# EXPORT
-os.makedirs("output", exist_ok=True)
-df_filtered.to_csv("output/filtered_health_data(2).csv", index=False)
-
-print("Files saved to /output folder successfully!")
