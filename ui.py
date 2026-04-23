@@ -10,7 +10,9 @@ def load_data():
 @st.cache_data
 def get_health_data(location: str):
     df = load_data()
-    df_filtered = df[df['LocationName'].astype(str).str.contains(location, case=False, na=False)]
+    print(f"Location type: {type(location)}, value: {location}")
+    df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
+
 
     if df_filtered.empty:
         return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
@@ -26,7 +28,7 @@ def get_health_data(location: str):
     for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
-    lat, lon = 29.7604, -95.3698
+    lat, lon = 29.7604, -95.3698 # fix this
     sample = df_filtered['Geolocation'].dropna()
     if not sample.empty:
         try:
@@ -38,20 +40,17 @@ def get_health_data(location: str):
     return result, lat, lon
 
 st.title("Health Data Dashboard")
-search_query = st.text_input("Enter a zip code or location:", placeholder="e.g., 77002")
 
-if search_query:
-    result_text, lat, lon = get_health_data(search_query)
-    st.write(f"DEBUG lat: {lat}, lon: {lon}")
-    col1, col2 = st.columns([1, 1])
+# --- MULTIPLE ZIP FEATURE ---
 
-    with col1:
-        st.subheader("Indicators")
-        st.markdown(result_text)
+zip_input = st.text_input("Enter ZIP code(s) (comma-separated):", "77002, 77030")
+zip_codes = [z.strip() for z in zip_input.split(",") if z.strip()]
+for zip_code in zip_codes:
+    st.subheader(f"Health Data for ZIP: {zip_code}")
+    health_info, lat, lon = get_health_data(zip_code)
+    st.markdown(health_info)
 
-    with col2:
-        st.subheader("Location Map")
-        m = folium.Map(location=[lat or 29.7604, lon or -95.3698], zoom_start=12)
-        st_folium(m, width=350, height=400)
-else:
-    st.info("Enter a zip code above to see health indicators and a location map.")
+    if lat and lon:
+        m = folium.Map(location=[lat, lon], zoom_start=12)
+        folium.Marker([lat, lon], tooltip=f"ZIP: {zip_code}").add_to(m)
+        st_folium(m, width=700, height=500)
