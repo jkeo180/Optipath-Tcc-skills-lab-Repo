@@ -47,7 +47,7 @@ zip_input = st.text_input("Enter ZIP code(s) (comma-separated):", "77002, 77030"
 zip_codes = [z.strip() for z in zip_input.split(",") if z.strip()]
 for zip_code in zip_codes:
     st.subheader(f"Health Data for ZIP: {zip_code}")
-    health_info, lat, lon = get_health_data( zip code)
+    health_info, lat, lon = get_health_data(zip_code)
     st.markdown(health_info)
 
     if lat and lon:
