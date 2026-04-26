@@ -52,7 +52,7 @@ for zip_code in zip_codes:
 
     if lat and lon:
        m = folium.Map(location=[float(lat), float(lon)], zoom_start=12)
-            folium.Marker([float(lat), float(lon)], tooltip=f"ZIP: {zip_code}").add_to(m)
+        folium.Marker([float(lat), float(lon)], tooltip=f"ZIP: {zip_code}").add_to(m)
             st_folium(m, width=700, height=500, key=f"map_{zip_code}")
     else:
         st.warning(f"No data found for ZIP code: {zip_code}")
