@@ -17,4 +17,4 @@ random
 pandas as pd
 requests
 folium
-streamlit_folium import st_folium
+streamlit_folium 
