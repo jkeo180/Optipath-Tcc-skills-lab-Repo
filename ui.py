@@ -5,7 +5,7 @@ from streamlit_folium import st_folium
 
 @st.cache_data
 def load_data():
-    return pd.read_csv('C:\\Users\\11\\optipath data set1\\PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
+    return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
 
 @st.cache_data
 def get_health_data(location: str):
