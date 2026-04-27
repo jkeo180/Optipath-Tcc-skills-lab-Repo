@@ -5,14 +5,15 @@ from streamlit_folium import st_folium
 
 @st.cache_data
 def load_data():
-    # Ensure this filename is exactly correct in your directory
-     filename = 'PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv'
+    return pd.read_csv('C:\\Users\\11\\optipath data set1\\PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
 
 @st.cache_data
 def get_health_data(location: str):
     df = load_data()
     print(f"Location type: {type(location)}, value: {location}")
     df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
+
+
     if df_filtered.empty:
         return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
 
@@ -27,7 +28,7 @@ def get_health_data(location: str):
     for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
-    lat, lon = 29.7604, -95.3698 
+    lat, lon = 29.7604, -95.3698 # fix this
     sample = df_filtered['Geolocation'].dropna()
     if not sample.empty:
         try:
@@ -37,7 +38,7 @@ def get_health_data(location: str):
             pass
 
     return result, lat, lon
-st.title("Health Data Dashboard")
+
 
 # --- MULTIPLE ZIP FEATURE ---
 
