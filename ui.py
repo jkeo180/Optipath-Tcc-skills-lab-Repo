@@ -14,8 +14,8 @@ def get_health_data(location: str):
 
 if df_filtered.empty:
         return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
-
-    summary = (
+    
+summary = (
         df_filtered.groupby('Short_Question_Text')['Data_Value']
         .mean()
         .dropna()
