@@ -26,7 +26,7 @@ result = f"**Top health indicators for {location}:**\n\n"
 for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
-    lat, lon = 29.7604, -95.3698 
+lat, lon = 29.7604, -95.3698 
     sample = df_filtered['Geolocation'].dropna()
     if not sample.empty:
         try:
