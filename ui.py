@@ -22,7 +22,7 @@ summary = (
         .sort_values(ascending=False)
     )
 
-    result = f"**Top health indicators for {location}:**\n\n"
+result = f"**Top health indicators for {location}:**\n\n"
     for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
