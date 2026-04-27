@@ -10,7 +10,7 @@ def load_data():
 def get_health_data(location: str):
     df = load_data()
     print(f"Location type: {type(location)}, value: {location}")
-    df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
+    df = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
 
 if df_filtered.empty:
     st.warning(f"No data found for '{location}'. Try a zip code like '77002'.")
