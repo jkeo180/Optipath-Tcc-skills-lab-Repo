@@ -6,8 +6,7 @@ from streamlit_folium import st_folium
 @st.cache_data
 def load_data():
     try:
-        # We MUST return the result of the read_csv
-        return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
+       return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
     except Exception as e:
         # If the file is missing or broken, return an empty box (DataFrame)
         # instead of letting the app crash with 'NoneType'
@@ -58,7 +57,7 @@ def get_health_data(location: str):
 
 # --- UI LOGIC ---
 
-st.title("Local Health Data Explorer")
+st.title("Health Data Dashboard")
 
 zip_input = st.text_input("Enter ZIP code(s) (comma-separated):", "77002, 77030")
 zip_codes = [z.strip() for z in zip_input.split(",") if z.strip()]
