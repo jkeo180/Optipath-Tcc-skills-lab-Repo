@@ -5,13 +5,15 @@ from streamlit_folium import st_folium
 
 @st.cache_data
 def load_data():
+    # Ensure this filename is exactly correct in your directory
     return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
+
 df = load_data()
 
 # 1. Define 'location' FIRST via user input
 location = st.text_input("Enter ZIP code", value="77002")
 
-# 2. Use 'location' to create 'df_filtered'
+# 2. Use 'location'
 if location:
     # In the PLACES ZCTA dataset, ZIP codes are often in 'LocationName' or 'LocationID'
     # We cast to string to ensure the comparison works
@@ -21,7 +23,7 @@ if location:
         st.warning(f"No data found for ZIP code: {location}")
         st.stop()
     
-    # 3.summary logic
+    # 3. Proceed with summary logic
     summary = (
         df_filtered.groupby('Short_Question_Text')['Data_Value']
         .mean()
@@ -30,8 +32,6 @@ if location:
     )
     st.write(f"### Health Indicators for {location}")
     st.dataframe(summary)
-    st.write(f"**Top health indicators for {location}:**")
-    st.table(summary) # Or however you'd like to display it
 else:
     st.info("Please enter a ZIP code to begin.")
     st.stop()
