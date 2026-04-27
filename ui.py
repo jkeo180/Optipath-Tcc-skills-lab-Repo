@@ -6,27 +6,30 @@ from streamlit_folium import st_folium
 @st.cache_data
 def load_data():
     return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
-# 2. Get the user input at the top level
-location = st.text_input("Enter ZIP", key="zip_input")
+df = load_data()
 
-# 3. Perform the filtering at the top level so 'df_filtered' is accessible everywhere
+# 1. Define 'location' FIRST via user input
+location = st.text_input("Enter ZIP code", value="77002")
+
+# 2. Use 'location' to create 'df_filtered'
 if location:
-    # Filter by LocationName or ZIP column (adjust based on your actual CSV headers)
+    # In the PLACES ZCTA dataset, ZIP codes are often in 'LocationName' or 'LocationID'
+    # We cast to string to ensure the comparison works
     df_filtered = df[df['LocationName'].astype(str) == str(location)]
-    
-    # 4. Now check if it's empty
+
     if df_filtered.empty:
         st.warning(f"No data found for ZIP code: {location}")
-        st.stop() 
-
-    # 5. Process the data
+        st.stop()
+    
+    # 3.summary logic
     summary = (
         df_filtered.groupby('Short_Question_Text')['Data_Value']
         .mean()
         .dropna()
         .sort_values(ascending=False)
     )
-
+    st.write(f"### Health Indicators for {location}")
+    st.dataframe(summary)
     st.write(f"**Top health indicators for {location}:**")
     st.table(summary) # Or however you'd like to display it
 else:
