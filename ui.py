@@ -13,7 +13,7 @@ def load_data():
         # instead of letting the app crash with 'NoneType'
         st.error(f"Could not load CSV: {e}")
         return pd.DataFrame() 
-
+        files_present = os.listdir('.')
 @st.cache_data
 def get_health_data(location: str):
     df = load_data()
