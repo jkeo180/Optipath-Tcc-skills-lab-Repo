@@ -35,7 +35,7 @@ if not sample.empty:
         except Exception:
             pass
 
-    return result, lat, lon
+return result, lat, lon
 
 st.title("Health Data Dashboard")
 
