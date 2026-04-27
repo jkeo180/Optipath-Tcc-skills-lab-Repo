@@ -6,26 +6,34 @@ from streamlit_folium import st_folium
 @st.cache_data
 def load_data():
     return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
-@st.cache_data
-def get_health_data(location: str):
-    df = load_data()
-    print(f"Location type: {type(location)}, value: {location}")
-    df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
-    zip_code = st.text_input("Enter ZIP")
-    df_filtered = df[df['ZIP'] == zip_code] 
-if df_filtered.empty:
-    st.warning(f"No data found for  ZIP code: {zip_code}")
-    st.stop() 
+# 2. Get the user input at the top level
+location = st.text_input("Enter ZIP", key="zip_input")
+
+# 3. Perform the filtering at the top level so 'df_filtered' is accessible everywhere
+if location:
+    # Filter by LocationName or ZIP column (adjust based on your actual CSV headers)
+    df_filtered = df[df['LocationName'].astype(str) == str(location)]
     
-summary = (
+    # 4. Now check if it's empty
+    if df_filtered.empty:
+        st.warning(f"No data found for ZIP code: {location}")
+        st.stop() 
+
+    # 5. Process the data
+    summary = (
         df_filtered.groupby('Short_Question_Text')['Data_Value']
         .mean()
         .dropna()
         .sort_values(ascending=False)
     )
 
-result = f"**Top health indicators for {location}:**\n\n"
-for indicator, value in summary.head(10).items():
+    st.write(f"**Top health indicators for {location}:**")
+    st.table(summary) # Or however you'd like to display it
+else:
+    st.info("Please enter a ZIP code to begin.")
+    st.stop()
+    result = f"**Top health indicators for {location}:**\n\n"
+    for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
 lat, lon = 29.7604, -95.3698 
