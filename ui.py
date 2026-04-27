@@ -6,7 +6,8 @@ from streamlit_folium import st_folium
 @st.cache_data
 def load_data():
     try:
-       filename = 'PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv'
+       def load_data():
+           return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
     except Exception as e:
         # If the file is missing or broken, return an empty box (DataFrame)
         # instead of letting the app crash with 'NoneType'
