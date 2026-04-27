@@ -47,14 +47,13 @@ zip_input = st.text_input("Enter ZIP code(s) (comma-separated):", "77002, 77030"
 zip_codes = [z.strip() for z in zip_input.split(",") if z.strip()]
 for zip_code in zip_codes:
     st.subheader(f"Health Data for ZIP: {zip_code}")
+   for zip_code in zip_codes:
+    st.subheader(f"Health Data for ZIP: {zip_code}")
     health_info, lat, lon = get_health_data(zip_code)
     st.markdown(health_info)
 
     if lat and lon:
-        folium.Marker(
-        [float(lat), float(lon)], 
-        tooltip=f"ZIP: {zip_code}"
-    ).add_to(m)
-        st_folium(m, width=700, height=500, key=f"map_{zip_code}")
-    else:
-        st.warning(f"No data found for ZIP code: {zip_code}")
+        m = folium.Map(location=[lat, lon], zoom_start=12)
+        folium.Marker([lat, lon], tooltip=f"ZIP: {zip_code}").add_to(m)
+        st_folium(m, width=700, height=500)
+
