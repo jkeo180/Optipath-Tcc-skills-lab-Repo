@@ -13,6 +13,7 @@ def get_health_data(location: str):
     df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
 
 if df_filtered.empty:
+    
     return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
     
 summary = (
