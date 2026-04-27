@@ -6,13 +6,15 @@ import os
 
 @st.cache_data
 def load_data():
-    # EXACT filename from your repository
-    filename = 'PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv'
-    
-    if not os.path.exists(filename):
-        st.error(f"File Not Found: {filename}")
-        st.info(f"Available files in repo: {os.listdir('.')}")
-        return pd.DataFrame() # Return empty instead of None
+    # This is the direct URL to the 2025 ZCTA dataset from the CDC
+    url = "https://cdc.gov"
+    try:
+        # We only pull the columns we actually need to save memory
+        cols = ['LocationName', 'Short_Question_Text', 'Data_Value', 'Geolocation']
+        return pd.read_csv(url, usecols=cols)
+    except Exception as e:
+        st.error(f"Failed to stream data from CDC: {e}")
+        return pd.DataFrame()
 
     try:
         return pd.read_csv(filename)
