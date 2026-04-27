@@ -6,15 +6,13 @@ from streamlit_folium import st_folium
 @st.cache_data
 def load_data():
     return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
-
 @st.cache_data
 def get_health_data(location: str):
     df = load_data()
     print(f"Location type: {type(location)}, value: {location}")
     df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
 
-
-    if df_filtered.empty:
+if df_filtered.empty:
         return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
 
     summary = (
@@ -28,7 +26,7 @@ def get_health_data(location: str):
     for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
-    lat, lon = 29.7604, -95.3698 # fix this
+    lat, lon = 29.7604, -95.3698 
     sample = df_filtered['Geolocation'].dropna()
     if not sample.empty:
         try:
@@ -51,8 +49,10 @@ for zip_code in zip_codes:
     st.markdown(health_info)
 
     if lat and lon:
-        m = folium.Map(location=[float(lat), float(lon)], zoom_start=12)
-        folium.Marker([float(lat), float(lon)], tooltip=f"ZIP: {zip_code}").add_to(m)
+        folium.Marker(
+        [float(lat), float(lon)], 
+        tooltip=f"ZIP: {zip_code}"
+    ).add_to(m)
         st_folium(m, width=700, height=500, key=f"map_{zip_code}")
     else:
         st.warning(f"No data found for ZIP code: {zip_code}")
