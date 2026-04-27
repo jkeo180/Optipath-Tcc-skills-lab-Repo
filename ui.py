@@ -23,7 +23,7 @@ summary = (
     )
 
 result = f"**Top health indicators for {location}:**\n\n"
-    for indicator, value in summary.head(10).items():
+for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
     lat, lon = 29.7604, -95.3698 
