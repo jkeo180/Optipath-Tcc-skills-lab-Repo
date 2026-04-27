@@ -8,50 +8,37 @@ def load_data():
     # Ensure this filename is exactly correct in your directory
     return pd.read_csv('PLACES__Local_Data_for_Better_Health,_ZCTA_Data,_2025_release_20260330.csv')
 
-df = load_data()
+@st.cache_data
+def get_health_data(location: str):
+    df = load_data()
+    print(f"Location type: {type(location)}, value: {location}")
+    df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
 
-# 1. Define 'location' FIRST via user input
-location = st.text_input("Enter ZIP code", value="77002")
-
-# 2. Use 'location'
-if location:
-    # In the PLACES ZCTA dataset, ZIP codes are often in 'LocationName' or 'LocationID'
-    # We cast to string to ensure the comparison works
-    df_filtered = df[df['LocationName'].astype(str) == str(location)]
 
     if df_filtered.empty:
-        st.warning(f"No data found for ZIP code: {location}")
-        st.stop()
-    
-    # 3. Proceed with summary logic
+        return f"No data found for '{location}'. Try a zip code like '77002'.", None, None
+
     summary = (
         df_filtered.groupby('Short_Question_Text')['Data_Value']
         .mean()
         .dropna()
         .sort_values(ascending=False)
     )
-    st.write(f"### Health Indicators for {location}")
-    st.dataframe(summary)
-else:
-    st.info("Please enter a ZIP code to begin.")
-    st.stop()
+
     result = f"**Top health indicators for {location}:**\n\n"
     for indicator, value in summary.head(10).items():
         result += f"- {indicator}: {value:.1f}%\n"
 
-lat, lon = 29.7604, -95.3698 
-sample = df_filtered['Geolocation'].dropna()
+    lat, lon = 29.7604, -95.3698 
+    sample = df_filtered['Geolocation'].dropna()
+    if not sample.empty:
+        try:
+            coords = sample.iloc[0].replace("POINT (", "").replace(")", "").split()
+            lon, lat = float(coords[0]), float(coords[1])
+        except Exception:
+            pass
 
-if not sample.empty:
-    try:
-       
-        coords = sample.iloc[0].replace("POINT (", "").replace(")", "").split()
-        lon, lat = float(coords[0]), float(coords[1])
-    except Exception:
-        pass
-
-st.write(f"Showing results for coordinates: {lat}, {lon}")
-
+    return result, lat, lon
 st.title("Health Data Dashboard")
 
 # --- MULTIPLE ZIP FEATURE ---
