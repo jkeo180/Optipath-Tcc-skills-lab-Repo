@@ -28,7 +28,7 @@ for indicator, value in summary.head(10).items():
 
 lat, lon = 29.7604, -95.3698 
 sample = df_filtered['Geolocation'].dropna()
-    if not sample.empty:
+if not sample.empty:
         try:
             coords = sample.iloc[0].replace("POINT (", "").replace(")", "").split()
             lon, lat = float(coords[0]), float(coords[1])
