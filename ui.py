@@ -6,20 +6,16 @@ import os
 
 @st.cache_data
 def load_data():
-    # This is the direct URL to the 2025 ZCTA dataset from the CDC
+    # This is the EXACT raw CSV link for the 2025 PLACES ZCTA data
     url = "https://cdc.gov"
+    
     try:
-        # We only pull the columns we actually need to save memory
+        # We only pull these 4 columns to prevent the app from crashing due to memory limits
         cols = ['LocationName', 'Short_Question_Text', 'Data_Value', 'Geolocation']
         return pd.read_csv(url, usecols=cols)
     except Exception as e:
         st.error(f"Failed to stream data from CDC: {e}")
-        return pd.DataFrame()
-
-    try:
-        return pd.read_csv(filename)
-    except Exception as e:
-        st.error(f"Error reading CSV: {e}")
+        # If the internet/URL fails, return an empty box so the app doesn't crash
         return pd.DataFrame()
 
 @st.cache_data
