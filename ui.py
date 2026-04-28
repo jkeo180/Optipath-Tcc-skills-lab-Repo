@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
 import folium
+from streamlit_folium import st_folium
 import requests
 import io
-from streamlit_folium import st_folium
+
 
 @st.cache_data
 def get_health_data(zip_code: str):
