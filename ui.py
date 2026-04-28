@@ -12,8 +12,9 @@ def get_health_data(location: str):
         "dataset": "HHS-Official/places-local-data-for-better-health-zcta-data-2023",
         "config": "default",
         "split": "train",
-        "offset": 0, 
-        "length": 100 
+        "query": location, # This searches specifically for your ZIP code
+        "offset": 0,
+        "length": 100
     }
     
     try:
