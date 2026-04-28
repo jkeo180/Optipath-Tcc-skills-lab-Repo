@@ -6,8 +6,7 @@ import requests
 
 @st.cache_data
 def get_health_data(location: str):
-    # Use the HF API to fetch rows for this specific ZIP
-    # We use a large 'length' to ensure we get all indicators for that ZIP
+    
     url = "https://huggingface.co"
     params = {
         "dataset": "HHS-Official/places-local-data-for-better-health-zcta-data-2023",
@@ -19,8 +18,6 @@ def get_health_data(location: str):
     
     try:
         response = requests.get(url, params=params)
-        # Note: In a real 'huge' dataset, you'd ideally use a search API, 
-        # but for now, we'll mimic your filter logic on the returned chunk.
         data = response.json()
         rows = [r['row'] for r in data['rows']]
         df = pd.DataFrame(rows)
