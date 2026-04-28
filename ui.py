@@ -6,7 +6,7 @@ import requests
 
 @st.cache_data
 def get_health_data(location: str):
-    
+    # Use the specific Datasets Server API endpoint
     url = "https://huggingface.co"
     params = {
         "dataset": "HHS-Official/places-local-data-for-better-health-zcta-data-2023",
@@ -18,10 +18,13 @@ def get_health_data(location: str):
     
     try:
         response = requests.get(url, params=params)
+        # Check if the request was successful before parsing JSON
+        if response.status_code != 200:
+            return f"API Error: {response.status_code} - {response.text[:50]}", None, None
+            
         data = response.json()
         rows = [r['row'] for r in data['rows']]
         df = pd.DataFrame(rows)
-        
         # Filter based on your ZIP input
         df_filtered = df[df['LocationName'].astype(str).str.contains(str(location), case=False, na=False)]
     except Exception as e:
